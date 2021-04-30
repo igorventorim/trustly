@@ -40,7 +40,7 @@ public class RequestService {
     }
 
     public String getHtmlPageWithoutPrefix(String uri) {
-        return getHtmlPage(this.URL_PREFIX + this.URL_PREFIX);
+        return getHtmlPage(this.URL_PREFIX + uri);
     }
 }
 

@@ -1,0 +1,51 @@
+version: '3'
+services:
+    redis:
+        container_name: redis
+        image: redis:latest
+        hostname: redis
+        ports:
+            - 6379:6379
+
+    zookeeper:
+         image: confluentinc/cp-zookeeper:5.2.1
+         environment:
+             ZOOKEEPER_CLIENT_PORT: 2181
+             ZOOKEEPER_TICK_TIME: 2000
+
+    kafka:
+          image: confluentinc/cp-kafka:latest
+          container_name: kafka
+          hostname: kafka
+          ports:
+             - "9092:9092"
+          depends_on:
+              - zookeeper
+          environment:
+              KAFKA_BROKER_ID: 1
+              KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+              KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+              KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+              KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+    github-api:
+          image: igorventorim/github-api
+          ports:
+             - "80:8080"
+          depends_on:
+             - redis
+             - kafka
+          links:
+             - redis
+             - kafka
+
+    scraper:
+          image: igorventorim/scraper
+          depends_on:
+             - redis
+             - kafka
+             - github-api
+          links:
+             - redis
+             - kafka
+
